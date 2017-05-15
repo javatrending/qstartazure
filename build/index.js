@@ -24,7 +24,6 @@ app.use(function(req, res, next){
     }
 
     fs.createReadStream(staticRoot + 'index.html').pipe(res);
-
 });
 
 //app.all('/*', function(req, res, next) {

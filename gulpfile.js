@@ -1,7 +1,9 @@
 "use strict";
 var gulp = require("gulp");
 var del = require("del");
-var sourcemaps = require('gulp-sourcemaps');
+var tsc = require("gulp-typescript");
+var sourcemaps  = require('gulp-sourcemaps');
+var tsProject = tsc.createProject("tsconfig.json");
 
 /**
  * Remove build directory.
@@ -10,6 +12,17 @@ gulp.task('clean', function (cb) {
     return del(["build"], cb);
 });
 
+/**
+ * Compile TypeScript sources and create sourcemaps in build directory.
+ */
+gulp.task("compile", () => {
+    var tsResult = gulp.src("src/**/*.ts")
+        .pipe(sourcemaps.init())
+        .pipe(tsc(tsProject));
+    return tsResult.js
+        .pipe(sourcemaps.write("."))
+        .pipe(gulp.dest("build"));
+});
 /**
  * Copy all resources that are not TypeScript files into build directory.
  */
@@ -26,7 +39,8 @@ gulp.task("server", function () {
  */
 gulp.task("libs", function () {
     return gulp.src([
-        'es6-shim/es6-shim.min.js',
+        'core-js/client/shim.min.js',
+        'zone.js/dist/zone.js',
         'systemjs/dist/system-polyfills.js',
         'angular2/bundles/angular2-polyfills.js',
         'angular2/es6/dev/src/testing/shims_for_IE.js',
@@ -40,6 +54,6 @@ gulp.task("libs", function () {
 /**
  * Build the project.
  */
-gulp.task("default", ['resources', 'libs'], function () {
+gulp.task("default", ['compile', 'resources', 'libs'], function () {
     console.log("Building the project ...");
 });
